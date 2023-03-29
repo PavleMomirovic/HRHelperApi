@@ -60,19 +60,17 @@ public class BranchesController : ControllerBase
     [HttpGet("{jmbg:length(13)}")]
     public async Task<ActionResult<Employee>> GetEmployeeByJMBG(string jmbg)
     {
-        var branches = await _BranchesService.GetAsync();
+        var branch = await _BranchesService.GetBranchByEmployeeJMBG(jmbg);
 
-        if (branches is null)
+        if (branch is null)
         {
             return NotFound();
         }
 
-        foreach(Branch b in branches){
-            if (b.employees==null) continue;
-            foreach(Employee emp in b.employees){
+            if (branch.employees==null) return BadRequest();
+            foreach(Employee emp in branch.employees){
                 if(emp.JMBG==jmbg) return emp;
             }
-        }
 
         return NotFound();
     }
@@ -109,22 +107,17 @@ public class BranchesController : ControllerBase
     [HttpPost("DeleteEmployeeByJMBG/{jmbg:length(13)}")]
     public async Task<IActionResult> DeleteEmployee(string jmbg){
 
-         var branches = await _BranchesService.GetAsync();
+         var branch = await _BranchesService.GetBranchByEmployeeJMBG(jmbg);
 
-        if (branches is null)
+        if (branch is null)
         {
             return NotFound();
         }
-        Branch branch;
-        bool found=false;
         List<Project> projs;
 
-        foreach(Branch b in branches){
-            if (b.employees==null) continue;
-            foreach(Employee emp in b.employees){
+            if (branch.employees==null) return BadRequest();
+            foreach(Employee emp in branch.employees){
                 if(emp.JMBG==jmbg) {
-                    found=true;
-                    branch=b;
                     branch.employees.Remove(emp);
                     if(branch.Id is null) return BadRequest(); 
                     else await _BranchesService.UpdateAsync(branch.Id, branch);
@@ -140,9 +133,8 @@ public class BranchesController : ControllerBase
                     break;
                 }
             }
-        }
-        //dodati deo da se brise iz spiska zaposlenih na projektima
-        return found?Ok():NotFound();
+        
+        return Ok();
     }
     [HttpPost("AddEmployee")]
     public async Task<IActionResult> AddEmployee(Employee employee,string branchName){

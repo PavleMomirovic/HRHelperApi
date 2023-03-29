@@ -72,7 +72,8 @@ fetch("http://localhost:5158/api/Branches/GetBranchNames").then(resp=>{
 
 
 function drawBranch(name){
-    if(name!="Choose a branch...")
+    if(name=="Choose a branch...") resetBranch();
+    else
     fetch("http://localhost:5158/api/Branches/GetBranchByName?name="+name).then(resp=>{
     if(resp.ok){
         resp.json().then(json => {

@@ -29,6 +29,9 @@ public class BranchesService
     public async Task<Branch?> GetByNameAsync(string name) =>
         await _BranchesCollection.Find(x => x.Name == name).FirstOrDefaultAsync();
 
+    public async Task<Branch> GetBranchByEmployeeJMBG(string jmbg){   
+        return await _BranchesCollection.Find($"{{\"employees.JMBG\":\'{jmbg}\'}}").FirstOrDefaultAsync();
+    }
     public async Task CreateAsync(Branch newBranch) =>
         await _BranchesCollection.InsertOneAsync(newBranch);
 
